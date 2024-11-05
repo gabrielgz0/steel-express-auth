@@ -14,7 +14,7 @@ verifyEmailRouter.post(
   emailController.sendVerificationEmail
 );
 
-verifyEmailRouter.post(
+verifyEmailRouter.get(
   '/verify-email/:token',
   validate(verifyEmailSchema),
   emailController.handleVerifyEmail
