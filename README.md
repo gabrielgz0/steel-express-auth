@@ -8,117 +8,28 @@ Maybe you can mention me or this repo in the acknowledgements too
 -->
 <div align="center">
 
-  <h1>Express-Ts-Auth-Service</h1>
+  <h1>Steel-Express-Auth</h1>
   
   <p>
-A pre-built authentication server that uses JSON Web Tokens (JWT) for authentication. It is built using Express.js, TypeScript and MySQL
+  A pre-built authentication server that uses JSON Web Tokens (JWT) for authentication. It is built using Express.js, TypeScript and PostgreSQL
   </p>
-  
-<!-- Badges -->
-<p>
-  <a href="https://github.com/Louis3797/express-ts-auth-service/graphs/contributors">
-    <img src="https://img.shields.io/github/contributors/Louis3797/express-ts-auth-service" alt="contributors" />
-  </a>
-  <a href="">
-    <img src="https://img.shields.io/github/last-commit/Louis3797/express-ts-auth-service" alt="last update" />
-  </a>
-  <a href="https://github.com/Louis3797/express-ts-auth-service/network/members">
-    <img src="https://img.shields.io/github/forks/Louis3797/express-ts-auth-service" alt="forks" />
-  </a>
-  <a href="https://github.com/Louis3797/express-ts-auth-service/stargazers">
-    <img src="https://img.shields.io/github/stars/Louis3797/express-ts-auth-service" alt="stars" />
-  </a>
-  <a href="https://github.com/Louis3797/express-ts-auth-service/issues/">
-    <img src="https://img.shields.io/github/issues/Louis3797/express-ts-auth-service" alt="open issues" />
-  </a>
-  <a href="https://github.com/Louis3797/express-ts-auth-service/blob/main/LICENSE">
-    <img src="https://img.shields.io/github/license/Louis3797/express-ts-auth-service.svg" alt="license" />
-  </a>
-</p>
 
 <h4>
-    <a href="https://github.com/Louis3797/express-ts-auth-service#readme">Documentation</a>
+    <a href="https://github.com/gabrielgz0/steel-express-auth#readme">Documentation</a>
   <span> · </span>
-    <a href="https://github.com/Louis3797/express-ts-auth-service/issues/">Report Bug</a>
+    <a href="https://github.com/gabrielgz0/steel-express-auth/issues/">Report Bug</a>
   <span> · </span>
-    <a href="https://github.com/Louis3797/express-ts-auth-service/issues/">Request Feature</a>
+    <a href="https://github.com/gabrielgz0/steel-express-auth/issues/">Request Feature</a>
   </h4>
 </div>
-
-<!-- Table of Contents -->
-
-# Table of Contents
-
-- [Table of Contents](#table-of-contents)
-  - [About the Project](#about-the-project)
-    - [Tech Stack](#tech-stack)
-    - [Features](#features)
-    - [Endpoints](#endpoints)
-    - [Project Structure](#project-structure)
-    - [Database](#database)
-      - [Account](#account)
-      - [User](#user)
-      - [RefreshToken](#refreshtoken)
-      - [ResetToken](#resettoken)
-      - [EmailVerificationToken](#emailverificationtoken)
-    - [Refresh Token Rotation](#refresh-token-rotation)
-    - [Environment Variables](#environment-variables)
-  - [Getting Started](#getting-started)
-    - [Prerequisites](#prerequisites)
-    - [Installation](#installation)
-    - [Linting](#linting)
-    - [Running Tests](#running-tests)
-    - [Run Locally](#run-locally)
-    - [Run with Docker](#run-with-docker)
-  - [Roadmap](#roadmap)
-  - [Contributing](#contributing)
-    - [Code of Conduct](#code-of-conduct)
-  - [License](#license)
-  - [Contact](#contact)
-  - [Acknowledgements](#acknowledgements)
 
 <!-- About the Project -->
 
 ## About the Project
 
-This pre-built authentication server is designed to simplify the process of adding secure user authentication to your web or mobile application. It provides a ready-made solution that uses JSON Web Tokens (JWT) to ensure reliable and secure user sessions, saving you time and resources that would otherwise be required to develop an authentication system from scratch. Built using Express.js and TypeScript, this server is also highly customizable and can be extended to meet the specific needs of your application. By integrating our authentication server into your application, you can rest assured that your users' data and sessions are well protected, leaving you free to focus on other important aspects of your application.
+This authentication server project builds upon a secure template, with an even stronger focus on advanced security measures. Designed to streamline the integration of user authentication for web or mobile applications, it leverages JSON Web Tokens (JWT) to establish secure, reliable user sessions. However, beyond basic authentication, this server is engineered with enhanced security features to protect against common vulnerabilities and attacks, offering an extra layer of protection for your application and user data.
 
-<!-- TechStack -->
-
-### Tech Stack
-
-<p align="left">
-  <a href="https://skillicons.dev">
-    <img src="https://skillicons.dev/icons?i=ts,nodejs,express,mysql,docker,prisma&perline=13" />
-  </a>
-</p>
-
-<!-- Features -->
-
-### Features
-
-- :black_nib: Written in TypeScript for type-safe code
-- :floppy_disk: Utilize a MySQL database to efficiently store user data
-- :speaking_head: Interacts with the database using the powerful Prisma ORM
-- :lock: Implements secure authentication measures with JWTs, ensuring secure access to sensitive data
-- :key: Implements robust password hashing using Argon2 for maximum security
-- :recycle: Incorporates refresh token rotation functionality to enhance the security
-- :white_check_mark: Includes email verification functionality for new user sign-ups
-- :new: Provides a reset password function for users who have forgotten their password
-- :rabbit2: Enables faster data transfer by implementing GZIP compression
-- :policeman: Implements essential security features using Helmet middleware
-- :cookie: Parses cookies seamlessly with cookie-parser middleware
-- :gear: Allows cross-origin resource sharing using CORS
-- :soap: Sanitizes request data against cross-site-scripting with xss middleware
-- :capital_abcd: Manages environment variables with ease using dotenv
-- :male_detective: Enforces high code quality standards with ESLint and Prettier
-- :horse_racing: Implements rate limiting to prevent abuse and improve server performance
-- :information_source: Accurately manages HTTP response status codes using http-status library
-- :warning: Validates user input with the powerful and flexible Joi library
-- :email: Facilitates sending of emails using nodemailer library
-- :memo: Enables detailed logging of server activities using winston library
-- :dog: Implements Git hooks with Husky to optimize development processes
-- :test_tube: Ensure reliability and robustness of the application with thorough testing using Jest and Supertest
+Built with Express.js and TypeScript, the server is highly customizable, allowing you to extend and adapt its functionality to fit specific requirements while maintaining a rigorous security standard. By integrating this robust authentication solution into your application, you can ensure that user data and sessions are well safeguarded, freeing you to concentrate on other critical components of your project, confident in the strong security foundation.
 
 <!-- Endpoints -->
 
@@ -290,16 +201,6 @@ The EmailVerificationToken entity represents a token used to verify a user's ema
 - userId: The ID of the user associated with the email verification token.
 - createdAt: The date of creation.
 
-<!-- Refresh Token Rotation -->
-
-### Refresh Token Rotation
-
-Refresh token rotation is a security practice used to mitigate the risk of unauthorized access to a user's account or resources. When a user logs in to an application, the application issues an access token and a refresh token. The access token is used to access the user's resources, while the refresh token is used to obtain a new access token when the current one expires.
-
-In refresh token rotation, the application periodically rotates the refresh token, meaning it invalidates the old refresh token and issues a new one. This practice can limit the amount of time an attacker can use a stolen refresh token to gain access to the user's account or resources. By rotating the refresh token, the application reduces the risk of a long-lived refresh token being used to access the user's account or resources without their permission.
-
-![Refresh Token Rotation Flow](https://github.com/Louis3797/express-ts-auth-service/blob/main/assets/refresh_token_rotation_flow_diagram.png)
-
 <!-- Env Variables -->
 
 ### Environment Variables
@@ -307,45 +208,34 @@ In refresh token rotation, the application periodically rotates the refresh toke
 To run this project, you will need to add the following environment variables to your .env file
 
 ```
-# App's running environment
-NODE_ENV=
+NODE_ENV=                   # Set to 'development' or 'production'
 
-# App's running port
-PORT=
+PORT=                       # The port your server will run on (e.g., 3000)
+SERVER_URL=                 # Base URL of your server (e.g., http://localhost:3000)
+CORS_ORIGIN=                # Allowed origin for CORS (e.g., http://localhost:3000)
 
-# Server url
-SERVER_URL=
+ACCESS_TOKEN_SECRET=        # Secret key for signing access tokens
+REFRESH_TOKEN_SECRET=       # Secret key for signing refresh tokens
 
-# Cors origin url
-CORS_ORIGIN=
+ACCESS_TOKEN_EXPIRE=        # Expiration time for access tokens (e.g., 1h)
+REFRESH_TOKEN_EXPIRE=       # Expiration time for refresh tokens (e.g., 30d)
 
-# Run node -e "console.log(require('crypto').randomBytes(256).toString('base64'));" in your console to generate a secret
-ACCESS_TOKEN_SECRET=
+REFRESH_TOKEN_COOKIE_NAME=  # Name of the cookie storing the refresh token
 
-REFRESH_TOKEN_SECRET=
+PG_DATABASE=                # Name of your PostgreSQL database
+PG_PASSWORD=                # Password for your PostgreSQL user
+PG_USER=                    # Username for PostgreSQL (e.g., postgres)
+PG_HOST=                    # Host for PostgreSQL (e.g., 127.0.0.1)
+PG_PORT=                    # Port for PostgreSQL (default is 5432)
 
-ACCESS_TOKEN_EXPIRE=
+DATABASE_URL=               # Full database URL (useful for ORMs like Prisma)
 
-REFRESH_TOKEN_EXPIRE=
-
-# name of the refresh token cookie
-REFRESH_TOKEN_COOKIE_NAME=
-
-MYSQL_DATABASE=
-MYSQL_ROOT_PASSWORD=
-
-# Example: mysql://USER:PASSWORD@HOST:PORT/DATABASE
-DATABASE_URL=
-
-# Configuration for the emial service
-SMTP_HOST=
-SMTP_PORT=
-SMTP_USERNAME=
-SMTP_PASSWORD=
-EMAIL_FROM=
+SMTP_HOST=                  # SMTP server host for email sending
+SMTP_PORT=                  # SMTP server port (e.g., 587)
+SMTP_USERNAME=              # SMTP server username
+SMTP_PASSWORD=              # SMTP server password
+EMAIL_FROM=                 # Default sender email address
 ```
-
-See .env.example for further details
 
 <!-- Getting Started -->
 
@@ -366,16 +256,8 @@ This project uses Yarn as package manager
 ### Installation
 
 ```bash
-  git clone https://github.com/Louis3797/express-ts-auth-service.git
-```
-
-Go to the project directory
-
-```bash
+  git clone https://github.com/gabrielgz0/steel-express-auth.git
   cd express-ts-auth-service
-```
-
-```bash
   yarn install
 ```
 
@@ -424,9 +306,9 @@ See test coverage
 
 ### Run Locally
 
-Start the server in development mode
-
 > Note: Dont forget to define the .env variables
+
+Start the server in development mode
 
 ```bash
   yarn dev
@@ -445,43 +327,9 @@ Start the server in production mode
 Run docker compose
 
 ```bash
-  cd express-ts-auth-service
+  cd steel-express-auth
   docker-compose up
 ```
-
-<!-- Roadmap -->
-## Roadmap
-
-- [ ] Winston + morgan for logging ?
-- [ ] Clean and order imports
-  - [x] Order imports
-  - [ ] Add index.ts files for cleaner imports
-- [x] Add xss attack prevention middleware
-- [ ] Add API Endpoint documentation
-- [ ] Social Auth
-  - [ ] Google
-  - [ ] Github
-  - [ ] Facebook
-  - [ ] Twitter
-- [ ] Better Error handeling
-  - [ ] Custom Error classes like ```AccessTokenNotFoundError```
-- [ ] Integration Tests
-
-<!-- Contributing -->
-## Contributing
-
-<a href="https://github.com/Louis3797/express-ts-auth-service/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=Louis3797/express-ts-auth-service" />
-</a>
-
-Contributions are always welcome!
-
-See `CONTRIBUTING.md` for ways to get started.
-
-<!-- Code of Conduct -->
-### Code of Conduct
-
-Please read the [Code of Conduct](https://github.com/Louis3797/express-ts-auth-service/blob/main/CODE_OF_CONDUCT.md)
 
 <!-- License -->
 
@@ -489,18 +337,8 @@ Please read the [Code of Conduct](https://github.com/Louis3797/express-ts-auth-s
 
 Distributed under the MIT License. See LICENSE for more information.
 
-<!-- Contact -->
-
-## Contact
-
-Louis-Kaan Ay - louiskaan.ay@gmail.com
-
-Project Link: [https://github.com/Louis3797/express-ts-auth-service](https://github.com/Louis3797/express-ts-auth-service)
-
 <!-- Acknowledgments -->
 
 ## Acknowledgements
 
-- [Readme Template](https://github.com/Louis3797/awesome-readme-template)
-- [Node Express Boilerplate](https://github.com/hagopj13/node-express-boilerplate)
-- [Express Ts Boilerplate](https://github.com/Louis3797/express-ts-boilerplate)
+- [express-ts-auth-service](https://github.com/Louis3797/express-ts-auth-service)
