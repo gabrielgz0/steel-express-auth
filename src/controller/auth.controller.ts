@@ -22,6 +22,7 @@ import {
 
 import { sendVerifyEmail } from '../utils/sendEmail.util';
 import logger from '../middleware/logger';
+import { verifyPassword } from '../utils/verifyPassword.util';
 
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-expect-error
@@ -123,7 +124,12 @@ export const handleLogin = async (
     }
   });
 
-  if (!user) return res.sendStatus(httpStatus.UNAUTHORIZED);
+  // check if user not exists or password is incorrect
+  if (!user || !await verifyPassword(user.password, password)) {
+    return res.status(httpStatus.UNAUTHORIZED).json({
+      message: 'Username or password incorrect!'
+    })
+  }
 
   // check if email is verified
   if (!user.emailVerified) {
@@ -132,70 +138,65 @@ export const handleLogin = async (
     });
   }
 
-  // check password
   try {
-    if (await argon2.verify(user.password, password)) {
-      // if there is a refresh token in the req.cookie, then we need to check if this
-      // refresh token exists in the database and belongs to the current user than we need to delete it
-      // if the token does not belong to the current user, then we delete all refresh tokens
-      // of the user stored in the db to be on the safe site
-      // we also clear the cookie in both cases
-      if (cookies?.[config.jwt.refresh_token.cookie_name]) {
-        // check if the given refresh token is from the current user
-        const checkRefreshToken = await prismaClient.refreshToken.findUnique({
+    // if there is a refresh token in the req.cookie, then we need to check if this
+    // refresh token exists in the database and belongs to the current user than we need to delete it
+    // if the token does not belong to the current user, then we delete all refresh tokens
+    // of the user stored in the db to be on the safe site
+    // we also clear the cookie in both cases
+    if (cookies?.[config.jwt.refresh_token.cookie_name]) {
+      // check if the given refresh token is from the current user
+      const checkRefreshToken = await prismaClient.refreshToken.findUnique({
+        where: {
+          token: cookies[config.jwt.refresh_token.cookie_name]
+        }
+      });
+
+      // if this token does not exists int the database or belongs to another user,
+      // then we clear all refresh tokens from the user in the db
+      if (!checkRefreshToken || checkRefreshToken.userId !== user.id) {
+        await prismaClient.refreshToken.deleteMany({
+          where: {
+            userId: user.id
+          }
+        });
+      } else {
+        // else everything is fine and we just need to delete the one token
+        await prismaClient.refreshToken.delete({
           where: {
             token: cookies[config.jwt.refresh_token.cookie_name]
           }
         });
-
-        // if this token does not exists int the database or belongs to another user,
-        // then we clear all refresh tokens from the user in the db
-        if (!checkRefreshToken || checkRefreshToken.userId !== user.id) {
-          await prismaClient.refreshToken.deleteMany({
-            where: {
-              userId: user.id
-            }
-          });
-        } else {
-          // else everything is fine and we just need to delete the one token
-          await prismaClient.refreshToken.delete({
-            where: {
-              token: cookies[config.jwt.refresh_token.cookie_name]
-            }
-          });
-        }
-
-        // also clear the refresh token in the cookie
-        res.clearCookie(
-          config.jwt.refresh_token.cookie_name,
-          clearRefreshTokenCookieConfig
-        );
       }
 
-      const accessToken = createAccessToken(user.id);
-
-      const newRefreshToken = createRefreshToken(user.id);
-
-      // store new refresh token in db
-      await prismaClient.refreshToken.create({
-        data: {
-          token: newRefreshToken,
-          userId: user.id
-        }
-      });
-
-      // save refresh token in cookie
-      res.cookie(
+      // also clear the refresh token in the cookie
+      res.clearCookie(
         config.jwt.refresh_token.cookie_name,
-        newRefreshToken,
-        refreshTokenCookieConfig
+        clearRefreshTokenCookieConfig
       );
-
-      // send access token per json to user so it can be stored in the localStorage
-      return res.json({ accessToken });
-    } else {
-      return res.status(httpStatus.UNAUTHORIZED);
     }
+
+    const accessToken = createAccessToken(user.id);
+
+    const newRefreshToken = createRefreshToken(user.id);
+
+    // store new refresh token in db
+    await prismaClient.refreshToken.create({
+      data: {
+        token: newRefreshToken,
+        userId: user.id
+      }
+    });
+
+    // save refresh token in cookie
+    res.cookie(
+      config.jwt.refresh_token.cookie_name,
+      newRefreshToken,
+      refreshTokenCookieConfig
+    );
+
+    // send access token per json to user so it can be stored in the localStorage
+    return res.json({ accessToken });
   } catch (err) {
     return res.status(httpStatus.INTERNAL_SERVER_ERROR);
   }
