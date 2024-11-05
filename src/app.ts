@@ -1,6 +1,5 @@
 import express, { type Express } from 'express';
 import cors from 'cors';
-import helmet from 'helmet';
 import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import compressFilter from './utils/compressFilter.util';
@@ -11,28 +10,32 @@ import config from './config/config';
 import authLimiter from './middleware/authLimiter';
 import { xssMiddleware } from './middleware/xssMiddleware';
 import path from 'path';
+import { headerManagement } from './middleware/headerManagement';
 
 const app: Express = express();
 
-// Helmet is used to secure this app by configuring the http-header
-app.use(helmet());
-
-// parse json request body
+// Parse json request body
 app.use(express.json());
 
-// parse urlencoded request body
+// Parse urlencoded request body
 app.use(express.urlencoded({ extended: true }));
 
-app.use(xssMiddleware());
-
+// Parse cookies
 app.use(cookieParser());
 
-// Compression is used to reduce the size of the response body
+// Security middlewares
+app.use(xssMiddleware());
+
+// Add, remove or modify some headers for safety
+app.use(headerManagement);
+app.set('etag', false);
+
+// Compression to reduce response size
 app.use(compression({ filter: compressFilter }));
 
+// CORS configuration
 app.use(
   cors({
-    // origin is given a array if we want to have multiple origins later
     origin: String(config.cors.cors_origin).split('|'),
     credentials: true
   })
@@ -42,18 +45,19 @@ if (config.node_env === 'production') {
   app.use('/api/v1/auth', authLimiter);
 }
 
+// Routes
 app.use('/api/v1/auth', authRouter);
-
 app.use('/api/v1', passwordRouter);
-
 app.use('/api/v1', verifyEmailRouter);
 
+// Secure route
 app.get('/secret', isAuth, (_req, res) => {
   res.json({
     message: 'You can see me'
   });
 });
 
+// Handle 404 for undefined routes
 app.all('*', (req, res) => {
   res.status(404);
   if (req.accepts('html')) {
@@ -65,6 +69,7 @@ app.all('*', (req, res) => {
   }
 });
 
+// Error handler middleware
 app.use(errorHandler);
 
 export default app;
