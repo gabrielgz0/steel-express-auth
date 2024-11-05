@@ -35,7 +35,8 @@ export const handleForgotPassword = async (
   // check if email is verified
   if (!user || user.emailVerified) {
     return res.send(httpStatus.UNAUTHORIZED).json({
-      message: 'Your email is not verified! Please confirm your email!'
+      message:
+        'If the email is registered, you will receive a password reset email.'
     });
   }
 
@@ -56,7 +57,10 @@ export const handleForgotPassword = async (
   // Return a success message
   return res
     .status(httpStatus.OK)
-    .json({ message: 'Password reset email sent' });
+    .json({
+    message:
+      'If the email is registered, you will receive a password reset email.'
+  });
 };
 
 /**
