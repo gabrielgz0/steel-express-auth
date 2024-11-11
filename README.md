@@ -58,6 +58,7 @@ POST /v1/verify-email/:token - Verify email
 ├── types/          # Types
 ├── utils/          # Utility classes and functions
 ├── validations/    # Validation schemas
+├── strategies/     # Passport strategies
 ├── app.ts          # Express App
 └── index.ts        # App Entrypoint
 ```
