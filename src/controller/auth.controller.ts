@@ -2,7 +2,6 @@ import type { Request, Response } from 'express';
 import httpStatus from 'http-status';
 import { randomUUID } from 'crypto';
 import * as argon2 from 'argon2';
-import jwt, { type JwtPayload } from 'jsonwebtoken';
 import prismaClient from '../config/prisma';
 import type {
   TypedRequest,
@@ -10,9 +9,11 @@ import type {
   UserSignUpCredentials
 } from '../types/types';
 import {
+  addToken,
   createAccessToken,
-  createRefreshToken
-} from '../utils/generateTokens.util';
+  createRefreshToken,
+  popToken
+} from '../utils/token.utils';
 import config from '../config/config';
 
 import {
@@ -21,12 +22,7 @@ import {
 } from '../config/cookieConfig';
 
 import { sendVerifyEmail } from '../utils/sendEmail.util';
-import logger from '../middleware/logger';
 import { verifyPassword } from '../utils/verifyPassword.util';
-
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error
-const { verify } = jwt;
 
 /**
  * This function handles the signup process for new users. It expects a request object with the following properties:
@@ -145,48 +141,39 @@ export const handleLogin = async (
 
   // check if email is verified
   if (!user.emailVerified) {
-    res.status(httpStatus.UNAUTHORIZED).json({
+    return res.status(httpStatus.UNAUTHORIZED).json({
       message: 'Your email is not verified! Please confirm your email!'
     });
   }
 
   try {
     // if there is a refresh token in the req.cookie, then we need to check if this
-    // refresh token exists in the database and belongs to the current user than we need to delete it
+    // refresh token exists in the database and belongs to the current user
     // if the token does not belong to the current user, then we delete all refresh tokens
     // of the user stored in the db to be on the safe site
     // we also clear the cookie in both cases
     if (cookies?.[config.jwt.refresh_token.cookie_name]) {
-      // check if the given refresh token is from the current user
-      const checkRefreshToken = await prismaClient.refreshToken.findUnique({
-        where: {
-          token: cookies[config.jwt.refresh_token.cookie_name]
-        }
-      });
+      // get the current token from database
+      const refreshToken = await popToken(
+        cookies[config.jwt.refresh_token.cookie_name]
+      );
 
-      // if this token does not exists int the database or belongs to another user,
-      // then we clear all refresh tokens from the user in the db
-      if (!checkRefreshToken || checkRefreshToken.userId !== user.id) {
+      // if token exists in db but is not from the current user delete all tokens
+      // from the user
+      if (refreshToken && refreshToken.userId !== user.id) {
         await prismaClient.refreshToken.deleteMany({
           where: {
-            userId: user.id
-          }
-        });
-      } else {
-        // else everything is fine and we just need to delete the one token
-        await prismaClient.refreshToken.delete({
-          where: {
-            token: cookies[config.jwt.refresh_token.cookie_name]
+            userId: refreshToken.userId
           }
         });
       }
-
-      // also clear the refresh token in the cookie
-      res.clearCookie(
-        config.jwt.refresh_token.cookie_name,
-        clearRefreshTokenCookieConfig
-      );
     }
+
+    // if this token does not exists in database just clear cookies
+    res.clearCookie(
+      config.jwt.refresh_token.cookie_name,
+      clearRefreshTokenCookieConfig
+    );
 
     const accessToken = createAccessToken(user.id);
 
@@ -231,14 +218,13 @@ export const handleLogout = async (req: TypedRequest, res: Response) => {
   if (!cookies[config.jwt.refresh_token.cookie_name]) {
     return res.sendStatus(httpStatus.NO_CONTENT); // No content
   }
-  const refreshToken = cookies[config.jwt.refresh_token.cookie_name];
 
   // Is refreshToken in db?
-  const foundRft = await prismaClient.refreshToken.findUnique({
-    where: { token: refreshToken }
-  });
+  const refreshToken = await popToken(
+    cookies[config.jwt.refresh_token.cookie_name]
+  );
 
-  if (!foundRft) {
+  if (!refreshToken) {
     res.clearCookie(
       config.jwt.refresh_token.cookie_name,
       clearRefreshTokenCookieConfig
@@ -246,15 +232,11 @@ export const handleLogout = async (req: TypedRequest, res: Response) => {
     return res.sendStatus(httpStatus.NO_CONTENT);
   }
 
-  // Delete refreshToken in db
-  await prismaClient.refreshToken.delete({
-    where: { token: refreshToken }
-  });
-
   res.clearCookie(
     config.jwt.refresh_token.cookie_name,
     clearRefreshTokenCookieConfig
   );
+
   return res.sendStatus(httpStatus.NO_CONTENT);
 };
 
@@ -270,88 +252,24 @@ export const handleLogout = async (req: TypedRequest, res: Response) => {
  *   - A 403 FORBIDDEN status code if a refresh token reuse was detected but the token was valid
  *   - A 403 FORBIDDEN status code if the token wasn't valid
  *   - A 200 OK status code if the token was valid and the user was granted a new refresh and access token
+ * Note: This route needs be protected against spammers
  */
 export const handleRefresh = async (req: Request, res: Response) => {
-  const refreshToken: string | undefined =
-    req.cookies[config.jwt.refresh_token.cookie_name];
+  if (!req.payload) return res.sendStatus(httpStatus.FORBIDDEN);
 
-  if (!refreshToken) return res.sendStatus(httpStatus.UNAUTHORIZED);
+  const accessToken = createAccessToken(req.payload.userId);
 
-  // clear refresh cookie
-  res.clearCookie(
+  const newRefreshToken = createRefreshToken(req.payload.userId);
+
+  // add refresh token to db
+  await addToken(newRefreshToken, req.payload.userId);
+
+  // Creates Secure Cookie with refresh token
+  res.cookie(
     config.jwt.refresh_token.cookie_name,
-    clearRefreshTokenCookieConfig
+    newRefreshToken,
+    refreshTokenCookieConfig
   );
 
-  // check if refresh token is in db
-  const foundRefreshToken = await prismaClient.refreshToken.findUnique({
-    where: {
-      token: refreshToken
-    }
-  });
-
-  // Detected refresh token reuse!
-  if (!foundRefreshToken) {
-    verify(
-      refreshToken,
-      config.jwt.refresh_token.secret,
-      async (err: unknown, payload: JwtPayload) => {
-        if (err) return res.sendStatus(httpStatus.FORBIDDEN);
-
-        logger.warn('Attempted refresh token reuse!');
-
-        // Delete all tokens of the user because we detected that a token was stolen from him
-        await prismaClient.refreshToken.deleteMany({
-          where: {
-            userId: payload.userId
-          }
-        });
-      }
-    );
-    return res.status(httpStatus.FORBIDDEN);
-  }
-
-  // delete from db
-  await prismaClient.refreshToken.delete({
-    where: {
-      token: refreshToken
-    }
-  });
-
-  // evaluate jwt
-  verify(
-    refreshToken,
-    config.jwt.refresh_token.secret,
-    async (err: unknown, payload: JwtPayload) => {
-      if (err || foundRefreshToken.userId !== payload.userId) {
-        return res.sendStatus(httpStatus.FORBIDDEN);
-      }
-
-      // Refresh token was still valid
-      const accessToken = createAccessToken(payload.userId);
-
-      const newRefreshToken = createRefreshToken(payload.userId);
-
-      // add refresh token to db
-      await prismaClient.refreshToken
-        .create({
-          data: {
-            token: newRefreshToken,
-            userId: payload.userId
-          }
-        })
-        .catch((err: Error) => {
-          logger.error(err);
-        });
-
-      // Creates Secure Cookie with refresh token
-      res.cookie(
-        config.jwt.refresh_token.cookie_name,
-        newRefreshToken,
-        refreshTokenCookieConfig
-      );
-
-      return res.json({ accessToken });
-    }
-  );
+  return res.json({ accessToken });
 };
