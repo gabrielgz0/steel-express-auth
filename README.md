@@ -39,6 +39,9 @@ Built with Express.js and TypeScript, the server is highly customizable, allowin
 POST /v1/auth/signup - Signup
 POST /v1/auth/login - Login
 POST /v1/auth/refresh - Refresh access token
+POST /v1/auth/google - Google auth
+POST /v1/auth/microsoft - Microsoft Auth
+POST /v1/auth/apple - Apple auth
 POST /v1/forgot-password - Send reset password email
 POST /v1/reset-password/:token - Reset password
 POST /v1/send-verification-email - Send verification email
