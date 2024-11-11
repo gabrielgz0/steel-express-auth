@@ -61,8 +61,8 @@ export const addToken = async (token: string, userId: string) => {
  * @param token - RefreshToken object or null.
  * @returns JwtPayload - if the token is valid, or null if invalid/expired.
  */
-export const openRefreshToken = (token: string | null) => {
-  return openToken(token, config.jwt.refresh_token.secret);
+export const openRefreshToken = (token: string | undefined) => {
+  return verify(token, config.jwt.refresh_token.secret);
 };
 
 /**
@@ -71,14 +71,6 @@ export const openRefreshToken = (token: string | null) => {
  * @param token - RefreshToken object or null.
  * @returns The payload if the token is valid, or null if invalid/expired.
  */
-export const openAccessToken = (token: string | null) => {
-  return openToken(token, config.jwt.access_token.secret);
-};
-
-export const openToken = (token: string | null, secret: string) => {
-  try {
-    return verify(token, secret);
-  } catch (err) {
-    return null;
-  }
+export const openAccessToken = (token: string | undefined) => {
+  return verify(token, config.jwt.access_token.secret);
 };

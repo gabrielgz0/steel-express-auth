@@ -4,25 +4,23 @@ import httpStatus from 'http-status';
 import { openAccessToken } from '../utils/token.utils';
 
 const isAuth = async (req: Request, res: Response, next: NextFunction) => {
-  // token looks like 'Bearer vnjaknvijdaknvikbnvreiudfnvriengviewjkdsbnvierj'
-
   const authHeader = req.headers?.authorization;
 
-  if (!authHeader || !authHeader?.startsWith('Bearer ')) {
+  if (!authHeader?.startsWith('Bearer ')) {
     return res.sendStatus(httpStatus.UNAUTHORIZED);
   }
 
-  const token: string | undefined = authHeader.split(' ')[1];
+  const token = authHeader.split(' ')[1];
 
-  if (!token) return res.sendStatus(httpStatus.UNAUTHORIZED);
+  try {
+    const payload = openAccessToken(token);
+    if (!payload) throw new Error('Token inválido');
 
-  const payload = openAccessToken(token);
-
-  if (!payload) return res.sendStatus(httpStatus.FORBIDDEN);
-
-  req.payload = payload;
-
-  next();
+    req.payload = payload;
+    next();
+  } catch (error) {
+    res.sendStatus(httpStatus.FORBIDDEN);
+  }
 };
 
 export default isAuth;
