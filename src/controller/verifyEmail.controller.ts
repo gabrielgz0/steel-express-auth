@@ -15,12 +15,13 @@ export const sendVerificationEmail = async (
   req: TypedRequest<EmailRequestBody>,
   res: Response
 ) => {
+  const message = 'If the email is valid, a verification message has been sent'
   const { email } = req.body;
 
   if (!email) {
     return res
-      .status(httpStatus.BAD_REQUEST)
-      .json({ message: 'Email is required!' });
+      .status(httpStatus.OK)
+      .json({ message });
   }
 
   // Check if the email exists in the database
@@ -31,15 +32,15 @@ export const sendVerificationEmail = async (
 
   if (!user) {
     return res
-      .status(httpStatus.UNAUTHORIZED)
-      .json({ error: 'Email not found' });
+      .status(httpStatus.OK)
+      .json({ message });
   }
 
   // Check if the user's email is already verified
   if (user.emailVerified) {
     return res
-      .status(httpStatus.CONFLICT)
-      .json({ error: 'Email already verified' });
+      .status(httpStatus.OK)
+      .json({ message });
   }
 
   // Check if there is an existing verification token that has not expired
@@ -52,8 +53,8 @@ export const sendVerificationEmail = async (
 
   if (existingToken) {
     return res
-      .status(httpStatus.BAD_REQUEST)
-      .json({ error: 'Verification email already sent' });
+      .status(httpStatus.OK)
+      .json({ message });
   }
 
   // Generate a new verification token and save it to the database
@@ -71,7 +72,7 @@ export const sendVerificationEmail = async (
   sendVerifyEmail(email, token);
 
   // Return a success message
-  return res.status(httpStatus.OK).json({ message: 'Verification email sent' });
+  return res.status(httpStatus.OK).json({ message });
 };
 
 export const handleVerifyEmail = async (req: Request, res: Response) => {
