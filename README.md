@@ -75,26 +75,6 @@ Prisma helps us to write database queries in a more readable and intuitive way, 
 If you're interested in the structure of our database, you can take a look at the data model presented below, which provides an overview of the tables, columns, and relationships within the database.
 
 ```js
-
-model Account {
-  id                String   @id @default(cuid())
-  userId            String
-  type              String
-  provider          String
-  providerAccountId String
-  refresh_token     String?  @db.Text
-  access_token      String?  @db.Text
-  expiresAt         DateTime
-  token_type        String?
-  scope             String?
-  id_token          String?  @db.Text
-  session_state     String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerAccountId])
-}
-
 model User {
   id                     String                   @id @default(cuid())
   name                   String
@@ -102,36 +82,37 @@ model User {
   password               String
   emailVerified          DateTime?
   createdAt              DateTime                 @default(now())
-  accounts               Account[]
+  updatedAt              DateTime                 @updatedAt
+  provider               String?
+  emailVerificationToken EmailVerificationToken[]
   refreshTokens          RefreshToken[]
   resetToken             ResetToken[]
-  emailVerificationToken EmailVerificationToken[]
 }
 
 model RefreshToken {
   id        String   @id @default(cuid())
   token     String   @unique
-  user      User     @relation(fields: [userId], references: [id])
   userId    String
   createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
 }
 
 model ResetToken {
   id        String   @id @default(cuid())
   token     String   @unique
   expiresAt DateTime
-  user      User     @relation(fields: [userId], references: [id])
   userId    String
   createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
 }
 
 model EmailVerificationToken {
   id        String   @id @default(cuid())
   token     String   @unique
   expiresAt DateTime
-  user      User     @relation(fields: [userId], references: [id])
   userId    String
   createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
 }
 ```
 
@@ -235,6 +216,20 @@ SMTP_PORT=                  # SMTP server port (e.g., 587)
 SMTP_USERNAME=              # SMTP server username
 SMTP_PASSWORD=              # SMTP server password
 EMAIL_FROM=                 # Default sender email address
+
+GOOGLE_ENABLE=true          # Enable Google auth
+GOOGLE_CLIENT_ID=           # Google client id
+GOOGLE_CLIENT_SECRET=       # Google client secret
+
+APPLE_ENABLE=false          # Enable Apple auth
+APPLE_CLIENT_ID=            # Apple client id
+APPLE_TEAM_ID=              # Apple team id
+APPLE_KEY_ID=               # Apple key id
+APPLE_PRIVATE_KEY=          # Apple private key
+
+MICROSOFT_ENABLE=true       # Enable Microsoft auth
+MICROSOFT_CLIENT_ID=        # Microsoft client id
+MICROSOFT_CLIENT_SECRET=    # Microsoft client secret
 ```
 
 <!-- Getting Started -->
