@@ -125,10 +125,22 @@ export const handleLogin = async (
   });
 
   // check if user not exists or password is incorrect
-  if (!user || !await verifyPassword(user.password, password)) {
+  if (!user) {
     return res.status(httpStatus.UNAUTHORIZED).json({
       message: 'Username or password incorrect!'
-    })
+    });
+  }
+
+  if (user.provider) {
+    return res.status(httpStatus.UNAUTHORIZED).json({
+      message: 'User created using social network, use social network method.'
+    });
+  }
+
+  if (!verifyPassword(user.password, password)) {
+    return res.status(httpStatus.UNAUTHORIZED).json({
+      message: 'Username or password incorrect!'
+    });
   }
 
   // check if email is verified

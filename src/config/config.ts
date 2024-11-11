@@ -23,7 +23,24 @@ const envSchema = Joi.object().keys({
   SMTP_PORT: Joi.string().default('587'),
   SMTP_USERNAME: Joi.string().required(),
   SMTP_PASSWORD: Joi.string().required(),
-  EMAIL_FROM: Joi.string().email().required()
+  EMAIL_FROM: Joi.string().email().required(),
+
+  // enable or disable social auth
+  APPLE_ENABLE: Joi.boolean(),
+  GOOGLE_ENABLE: Joi.boolean(),
+  MICROSOFT_ENABLE: Joi.boolean(),
+
+  // social auth schemas, optional
+  GOOGLE_CLIENT_ID: Joi.string().allow('').optional(),
+  GOOGLE_CLIENT_SECRET: Joi.string().allow('').optional(),
+
+  APPLE_CLIENT_ID: Joi.string().allow('').optional(),
+  APPLE_TEAM_ID: Joi.string().allow('').optional(),
+  APPLE_KEY_ID: Joi.string().allow('').optional(),
+  APPLE_PRIVATE_KEY: Joi.string().allow('').optional(),
+
+  MICROSOFT_CLIENT_ID: Joi.string().allow('').optional(),
+  MICROSOFT_CLIENT_SECRET: Joi.string().allow('').optional()
 });
 
 const { value: validatedEnv, error } = envSchema
@@ -68,6 +85,25 @@ const config = {
       }
     },
     from: validatedEnv.EMAIL_FROM
+  },
+  social_auth: {
+    google: {
+      enable: validatedEnv.GOOGLE_ENABLE,
+      client_id: validatedEnv.GOOGLE_CLIENT_ID,
+      client_secret: validatedEnv.GOOGLE_CLIENT_SECRET
+    },
+    apple: {
+      enable: validatedEnv.APPLE_ENABLE,
+      clientID: validatedEnv.APPLE_CLIENT_ID,
+      teamID: validatedEnv.APPLE_TEAM_ID,
+      keyID: validatedEnv.APPLE_KEY_ID,
+      privateKey: validatedEnv.APPLE_PRIVATE_KEY
+    },
+    microsoft: {
+      enable: validatedEnv.MICROSOFT_ENABLE,
+      client_id: validatedEnv.MICROSOFT_CLIENT_ID,
+      client_secret: validatedEnv.MICROSOFT_CLIENT_SECRET
+    }
   }
 } as const;
 

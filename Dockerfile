@@ -19,6 +19,9 @@ RUN apk add --no-cache --virtual .build-deps \
 # Copy the rest of the application code to the container
 COPY . .
 
+# Generate prisma client
+RUN yarn prisma generate
+
 # Build the application
 RUN yarn build
 
@@ -55,6 +58,7 @@ ENV NODE_ENV=production
 ENV PORT=3000
 
 # Generate prisma client
+
 RUN yarn prisma generate
 
 # Expose port for the application to listen on

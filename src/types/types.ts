@@ -1,4 +1,11 @@
 import type { NextFunction, Request, Response } from 'express';
+import type {
+  Profile as AppleProfile,
+  VerifyCallback as AppleVerify
+} from 'passport-apple';
+
+import type { Profile, VerifyCallback } from 'passport-google-oauth20';
+
 import type { DeepPartial } from 'utility-types';
 import type { IFilterXSSOptions } from 'xss';
 
@@ -57,6 +64,22 @@ export interface EmailRequestBody {
 export interface ResetPasswordRequestBodyType {
   newPassword: string;
 }
+
+export type Google = (
+  req: Request,
+  accessToken: string,
+  refreshToken: string,
+  profile: Profile,
+  done: VerifyCallback
+) => void;
+
+export type Apple = (
+  req: Request,
+  accessToken: string,
+  refreshToken: string,
+  profile: AppleProfile,
+  done: AppleVerify
+) => void;
 
 export type Sanitized<T> = T extends (...args: unknown[]) => unknown
   ? T // if T is a function, return it as is

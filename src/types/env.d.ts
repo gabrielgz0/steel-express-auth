@@ -17,5 +17,16 @@ declare namespace NodeJS {
     readonly SMTP_USERNAME: string;
     readonly SMTP_PASSWORD: string;
     readonly EMAIL_FROM: string;
+    readonly GOOGLE_ENABLE: boolean;
+    readonly GOOGLE_CLIENT_ID: string;
+    readonly GOOGLE_CLIENT_SECRET: string;
+    readonly APPLE_ENABLE: boolean;
+    readonly APPLE_CLIENT_ID: string;
+    readonly APPLE_TEAM_ID: string;
+    readonly APPLE_KEY_ID: string;
+    readonly APPLE_PRIVATE_KEY: string;
+    readonly MICROSOFT_ENABLE: boolean;
+    readonly MICROSOFT_CLIENT_ID: string;
+    readonly MICROSOFT_CLIENT_SECRET: string;
   }
 }
